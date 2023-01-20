@@ -36,7 +36,7 @@ uint8_t TwoWireMultiplexPCA9543::getChannel(bool force)
 {  
   uint8_t data=0;
   if (force) {
-    if (Wire.requestFrom(addr,1) & 0x3) 
+    if (Wire.requestFrom(addr,1u) & 0x3) 
       data = Wire.read();
     switch(data){
       case 0: // no channel selected
