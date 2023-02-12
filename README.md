@@ -27,7 +27,7 @@ Exemple of base class using Wire
 class BASE {
   public:
   void attachTwoWireMultiplex(TwoWireMultiplex *mux, uint8_t channel) {mux_drv=mux; mux_channel=channel;}
-  inline bool selectBus() {if (mux_drv) return mux_drv->selectChannel(mux_channel); }
+  inline bool selectBus() {if (mux_drv) return mux_drv->selectChannel(mux_channel); return true;}
   private:
   TwoWireMultiplex *mux_drv;
   uint8_t mux_channel;

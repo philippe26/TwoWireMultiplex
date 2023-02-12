@@ -28,6 +28,13 @@ uint8_t TwoWireMultiplex::validateChannel(uint8_t chan)
   return I2C_BUS_CHANNEL_NONE;
 }
 
+bool TwoWireMultiplex::begin(uint32_t clock) 
+{
+  Wire.begin();
+  Wire.setClock(clock);
+  return selectChannel(0, true);
+}
+
 // *************************************************************************************************************
 //       TwoWireMultiplexPCA9543
 // *************************************************************************************************************

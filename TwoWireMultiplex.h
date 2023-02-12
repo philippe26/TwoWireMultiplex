@@ -30,6 +30,8 @@ public:
   
   void printTo(Print& p);
   uint8_t validateChannel(uint8_t chan);
+
+  bool begin(uint32_t clock=400000uL); // call Wire.begin() and check presence of mux device
     
 protected:
   union {
