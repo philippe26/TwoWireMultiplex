@@ -69,8 +69,7 @@ bool TwoWireMultiplex::begin(uint32_t clock)
     return false;
   Wire.begin();
   Wire.setClock(clock);
-  selectChannel(0, true);
-  return true;
+  return selectChannel(0, true);  
 }
 
 // Add the mux device and return the nesting level
@@ -99,7 +98,7 @@ bool TwoWireMultiplexPCA9543::setChannel(uint8_t subchan, bool force)
     } else if (subchan==(uint8_t)I2C_BUS_CHANNEL_ALL) {
       data=0x3; // select all channels
     }    
-    Serial.print("TwoWireMultiplexPCA9543.setChannel: addr=0x"); Serial.print(addr,HEX); Serial.print(", data=0x"); Serial.println(data,HEX); 
+    //Serial.print("TwoWireMultiplexPCA9543.setChannel: addr=0x"); Serial.print(addr,HEX); Serial.print(", data=0x"); Serial.println(data,HEX); 
     // channel not yet selected, instruct the device
     Wire.beginTransmission(addr);
     Wire.write(data);
