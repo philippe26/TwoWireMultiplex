@@ -74,4 +74,23 @@ protected:
   bool setChannel(uint8_t subchan, bool force=false) override;
 };
 
+
+class TwoWireMultiplexInterface {
+public:
+  TwoWireMultiplexInterface() {mux_drv=NULL; mux_channel=0;}
+  void attachTwoWireMultiplex(TwoWireMultiplex *mux, uint32_t channel) {mux_drv=mux; mux_channel=channel;}
+  TwoWireMultiplex * getAttachedTwoWireMultiplex() {return mux_drv;}
+  uint32_t getAttachedTwoWireMultiplexChannel() {return mux_channel;}
+
+  bool selectBus() {
+    if (mux_drv) {
+      //Serial.print("~~~ Query to select channel 0x"); Serial.println(mux_channel,HEX); 
+      return mux_drv->selectChannel(mux_channel,true); 
+    }
+    return true;
+  }
+protected:  
+ 	TwoWireMultiplex *mux_drv;
+  uint32_t mux_channel; 
+};
 #endif

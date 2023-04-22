@@ -48,19 +48,19 @@ uint8_t TwoWireMultiplex::validateChannel(uint32_t chan)
 // call setChannel() for each nested level (see next pointer)
 bool TwoWireMultiplex::selectChannel(uint32_t chan, bool force) 
 {
-  bool result=false;
+  bool result1, result2=true;
   uint8_t subChan=validateChannel(chan);
   TwoWireMultiplex *nestMux=NULL; 
   if(subChan<nb_channels)
     nestMux= childs[subChan];
   
-  result=setChannel(subChan, force); // set current NODE
+  result1=setChannel(subChan, force); // set current NODE
     
   if(nestMux) {      
     // if nested node, select it
-    result = result && nestMux->selectChannel(chan>>4, force);
+    result2 = nestMux->selectChannel(chan>>4, true);
   }
-  return result;
+  return result1 && result2;
 }
 
 bool TwoWireMultiplex::begin(uint32_t clock) 
@@ -98,11 +98,12 @@ bool TwoWireMultiplexPCA9543::setChannel(uint8_t subchan, bool force)
     } else if (subchan==(uint8_t)I2C_BUS_CHANNEL_ALL) {
       data=0x3; // select all channels
     }    
-    //Serial.print("TwoWireMultiplexPCA9543.setChannel: addr=0x"); Serial.print(addr,HEX); Serial.print(", data=0x"); Serial.println(data,HEX); 
+     
     // channel not yet selected, instruct the device
     Wire.beginTransmission(addr);
     Wire.write(data);
     result=(Wire.endTransmission()==0)?true:false;     
+    //Serial.print("TwoWireMultiplexPCA9543.setChannel: addr=0x"); Serial.print(addr,HEX); Serial.print(", data=0x"); Serial.print(data,HEX);Serial.println((result)?"[OK]":"[FAIL]");
   } 
   channel=subchan;
   return result;
