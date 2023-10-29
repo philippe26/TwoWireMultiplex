@@ -55,6 +55,7 @@ bool TwoWireMultiplex::selectChannel(uint32_t chan, bool force)
     nestMux= childs[subChan];
   
   result1=setChannel(subChan, force); // set current NODE
+  //Serial.print("TwoWireMultiplex.selectChannel: chan=0x"); Serial.print(chan,HEX);  Serial.print("SubChan=");Serial.print(subChan);Serial.print("nestMux=");Serial.println((uint32_t)nestMux,HEX);
     
   if(nestMux) {      
     // if nested node, select it
@@ -91,6 +92,7 @@ void TwoWireMultiplex::addNestDevice(TwoWireMultiplex *mux, uint32_t channel)
 bool TwoWireMultiplexPCA9543::setChannel(uint8_t subchan, bool force) 
 {
   bool result=false;    
+  subchan = subchan & 0xf;
   if ((subchan!=channel) || force) {
     byte data=0;
     if (subchan<nb_channels) {
