@@ -1,49 +1,72 @@
 # TwoWireMultiplex
 Manage the I2C bus multiplexing through multiplex devices (TCA9543, TCA9448, etc)
 
+
+```mermaid
+classDiagram
+
+TwoWireMultiplex <|-- TwoWireMultiplexPCA9543
+class TwoWireMultiplex {
+  TwoWireMultiplex(uint8_t maxChannels, uint8_t _addr);
+  void printTo(Print& p);
+  bool begin(uint32_t clock=400000uL);
+  void addNestDevice(TwoWireMultiplex *mux, uint32_t channel);
+  bool selectChannel(uint32_t chan, bool force=false);
+  TwoWireMultiplex **childs; 
+  uint8_t channel;    
+  const uint8_t nb_channels;
+  const uint8_t addr;
+}
+TwoWireMultiplexPCA9543: TwoWireMultiplexPCA9543(uint8_t offset=0)
+
+```
+
+
+The TwoWireMultiplex class allows a daisychain tree, by using addNestDevice method (which populates the childs), up to 4 nesting levels
+selectChannel uses an uint32 for 8 (4 bits each) nesting levels
+
+For instance, selectChannel(0xF01274) will select path 4.7.2.1.0
+- level0 (root) : use child 4
+- level1 : use child 7
+- level2 : use child 2
+- level3 : use child 1 
+- level4 : use child 0
+- level5 (last): use none
+
 ## Usage
-Create an instance of the class TwoWireMultiplex and attach it to all classes that use Wire library
+Create an instance of the class TwoWireMultiplex 
 
-For instance, pinDriver library
 
 ```C++
+  #include "TwoWireMultiplex.h"
   TwoWireMultiplexPCA9543 busMux; // using a TCA9543 device for multiplexing 2 I2C bus
-  pinDriverPCA9555 pinDrv;
-
+  TwoWireMultiplexPCA9543 busMuxChild1, busMuxChild2;
   void setup() {
-    Wire.begin();
-    busMux.selectChannel(0, true);  // initialize/configure the device
-    ...
-    pinDrv.attachTwoWireMultiplex(&busMux, 0); // Attaching the mux and assign pinDrv to channel 0 (first bus of TCA9543)
-  }
-```
 
-## Instrumentation of code to work with TwoWireMultiplex
-Note: **All libraries based upon Manageable class are compatible with TwoWireMultiplex**
-
-Exemple of base class using Wire
-
-```C++
-class BASE {
-  public:
-  void attachTwoWireMultiplex(TwoWireMultiplex *mux, uint8_t channel) {mux_drv=mux; mux_channel=channel;}
-  inline bool selectBus() {if (mux_drv) return mux_drv->selectChannel(mux_channel); return true;}
-  private:
-  TwoWireMultiplex *mux_drv;
-  uint8_t mux_channel;
-  const uint8_t i2caddr;
-}
-
-class A: public BASE {
-  void func_write_reg() {
-    if (selectBus()) {
-      Wire.beginTransmission(i2caddr);
-      Wire.write(2);
-      Wire.write(17);
-      Wire.endTransmission();
+    if (busMux.begin(I2C_BAUDRATE)) {
+      // Wire.begin is called by TwoWireMultiplexPCA9543, and clock set to I2C_BAUDRATE
+      Serial.println(F("OK"));    
+    } else {
+      Serial.println(F("FAILED"));
+      return;
     }
+    busmux.addNestDevice(&busMuxChild1, 0);
+    busmux.addNestDevice(&busMuxChild2, 1);
+    
+    busMux.selectChannel(0, true);  // initialize/configure the device
+    Wire.beginTransmission(0x68);     
+    ...
+
+    busMux.selectChannel(0x11, true);  // select chan 1 of child2
+    Wire.beginTransmission(0x44);     
+    ...
+
+    
   }
-}
-
-
 ```
+
+
+
+
+
+Class built from Mermaid (https://mermaid.js.org/intro/)

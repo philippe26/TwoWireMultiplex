@@ -36,6 +36,7 @@ public:
   void addNestDevice(TwoWireMultiplex *mux, uint32_t channel);   // channel give the path to add new mux
   bool selectChannel(uint32_t chan, bool force=false);  
   
+  inline const uint8_t getChannelCount() {return nb_channels;}
 protected:
   union {
     uint8_t channel;
@@ -66,11 +67,10 @@ protected:
 class TwoWireMultiplexPCA9543: public TwoWireMultiplex {
 public:  
   TwoWireMultiplexPCA9543(uint8_t offset=0): TwoWireMultiplex(2,PCA9543A_ADDR(offset)) {}
-  
+
+protected:    
   uint8_t getChannel(bool force=false) override;
   uint8_t getChannelIRQ() override;
-
-protected:  
   bool setChannel(uint8_t subchan, bool force=false) override;
 };
 
